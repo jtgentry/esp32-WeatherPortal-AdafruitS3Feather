@@ -259,30 +259,45 @@ void drawMultiLnString(int16_t x, int16_t y, const String &text,
 /// @warning Must call powerOffDisplay() before deep sleep.
 void initDisplay()
 {
-  pinMode(PIN_EPD_PWR, OUTPUT);
-  digitalWrite(PIN_EPD_PWR, HIGH);
-#ifdef DRIVER_WAVESHARE
-  display.init(115200, true, 2, false);
-#endif
-#ifdef DRIVER_DESPI_C02
-  display.init(115200, true, 10, false);
-#endif
-  // remap spi
+  // 1. Power up the display hardware first with a longer stabilization delay
+  if (PIN_EPD_PWR != -1 && PIN_EPD_PWR != 255) {
+    pinMode(PIN_EPD_PWR, OUTPUT);
+    digitalWrite(PIN_EPD_PWR, HIGH);
+    delay(200); // Increased from 50ms to allow e-paper controller to boot fully
+  }
+
+  // 2. Explicitly configure all display control pins as OUTPUT / INPUT
+  pinMode(PIN_EPD_CS, OUTPUT);
+  pinMode(PIN_EPD_DC, OUTPUT);
+  pinMode(PIN_EPD_RST, OUTPUT);
+  pinMode(PIN_EPD_BUSY, INPUT_PULLUP); // Use pullup to prevent floating states on BUSY line
+
+  // 3. Reset and map the SPI bus to the Feather's pins
   SPI.end();
   SPI.begin(PIN_EPD_SCK,
             PIN_EPD_MISO,
             PIN_EPD_MOSI,
             PIN_EPD_CS);
 
+  // 4. Initialize the GxEPD2 display driver
+#ifdef DRIVER_WAVESHARE
+  display.init(115200, true, 2, false);
+#elif defined(DRIVER_DESPI_C02)
+  display.init(115200, true, 10, false);
+#else
+  display.init(115200, true, 10, false); // Safe fallback default if macros aren't set
+#endif
+
+  // 5. Set default drawing parameters
   display.setRotation(0);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK);
   display.setTextWrap(false);
-  // display.fillScreen(GxEPD_WHITE);
   display.setFullWindow();
-  display.firstPage(); // use paged drawing mode, sets fillScreen(GxEPD_WHITE)
-  return;
-} // end initDisplay
+  
+  // Prepare the display's buffer for the first frame
+  display.firstPage(); 
+}
 
 /// @brief Power off e-paper display
 /// @details Hibernates controller and cuts power for minimum consumption.

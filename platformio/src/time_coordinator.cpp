@@ -128,7 +128,8 @@ void TimeCoordinator::syncRtcIfNeeded_(int offsetSeconds) {
         return;
     }
     
-    configTime(offsetSeconds, 0, "pool.ntp.org");
+    // Configure NTP server pool with reliable fallbacks
+    configTime(offsetSeconds, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
     delay(100);
     
     if (time(nullptr) > 1000000000) {

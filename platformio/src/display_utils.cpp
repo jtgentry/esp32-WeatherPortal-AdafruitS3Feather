@@ -28,6 +28,7 @@
 #include "renderer.h"
 #include "wifi_manager.h"
 #include <qrcode.h>
+#include <Adafruit_MAX1704X.h>
 
 // icon header files
 #include "icons/icons.h"
@@ -39,44 +40,22 @@
 /// @brief Read battery voltage from ADC
 /// @return Battery voltage in millivolts (mV)
 /// @details Uses ESP32 ADC with eFuse calibration. Assumes 1M+1M voltage divider.
+
+// Instantiate the fuel gauge tracker (uses default I2C address 0x36)
+extern Adafruit_MAX17048 maxlipo; 
+
 uint32_t readBatteryVoltage()
 {
-  esp_adc_cal_characteristics_t adc_chars;
-  // __attribute__((unused)) disables compiler warnings about this variable
-  // being unused (Clang, GCC) which is the case when DEBUG_LEVEL == 0.
-  esp_adc_cal_value_t val_type __attribute__((unused));
-  adc_power_acquire();
-  uint16_t adc_val = analogRead(PIN_BAT_ADC);
-  adc_power_release();
-
-  // We will use the eFuse ADC calibration bits, to get accurate voltage
-  // readings. The DFRobot FireBeetle Esp32-E V1.0's ADC is 12 bit, and uses
-  // 11db attenuation, which gives it a measurable input voltage range of 150mV
-  // to 2450mV.
-  val_type = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_11db,
-                                      ADC_WIDTH_BIT_12, 1100, &adc_chars);
-
-#if DEBUG_LEVEL >= 1
-  if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF)
-  {
-    Serial.println("[debug] ADC Cal eFuse Vref");
+  // If your setup routine initializes maxlipo elsewhere, 
+  // you can pull the cell voltage directly in millivolts:
+  float voltage = maxlipo.cellVoltage();
+  
+  if (isnan(voltage)) {
+    return 0; // Fallback if no battery is attached
   }
-  else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP)
-  {
-    Serial.println("[debug] ADC Cal Two Point");
-  }
-  else
-  {
-    Serial.println("[debug] ADC Cal Default");
-  }
-#endif
-
-  uint32_t batteryVoltage = esp_adc_cal_raw_to_voltage(adc_val, &adc_chars);
-  // DFRobot FireBeetle Esp32-E V1.0 voltage divider (1M+1M), so readings are
-  // multiplied by 2.
-  batteryVoltage *= 2;
-  return batteryVoltage;
-} // end readBatteryVoltage
+  
+  return (uint32_t)(voltage * 1000.0f); // Convert volts to millivolts to match expected return type
+}
 
 /// @brief Calculate battery percentage using sigmoidal approximation
 /// @param v Current voltage (mV)

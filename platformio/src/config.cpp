@@ -17,6 +17,10 @@
 
 #include <Arduino.h>
 #include "config.h"
+#include <Adafruit_MAX1704X.h>
+
+// Instantiate the global fuel gauge object
+Adafruit_MAX17048 maxlipo;
 
 // PINS
 // The configuration below is intended for use with the project's official 
@@ -27,28 +31,29 @@
 //       functionality.
 //
 // ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC  = 36; // ADC1_CH0
+const int8_t PIN_BAT_ADC  = 36; // ADC1_CH0
 // Pins for E-Paper Driver Board
-const uint8_t PIN_EPD_BUSY = 25;
-const uint8_t PIN_EPD_CS   = 15;
-const uint8_t PIN_EPD_RST  = 26;
-const uint8_t PIN_EPD_DC   = 27;
-const uint8_t PIN_EPD_SCK  = 13;
-const uint8_t PIN_EPD_MISO = 19; // Not used for e-paper
-const uint8_t PIN_EPD_MOSI = 14;
-const uint8_t PIN_EPD_PWR  = 0;  // Not used on Waveshare Driver Board (connected to 3.3V)
+const int8_t PIN_EPD_CS   = 10; // D10
+const int8_t PIN_EPD_DC   = 11; // D11
+const int8_t PIN_EPD_RST  = 12; // D12
+const int8_t PIN_EPD_BUSY = 6; // D6
+const int8_t PIN_EPD_PWR  = 5;  // D5
+const int8_t PIN_EPD_SCK  = 36;
+const int8_t PIN_EPD_MISO = 37;
+const int8_t PIN_EPD_MOSI = 35;
 // I2C Pins used for BME280
-const uint8_t PIN_BME_SDA = 21;
-const uint8_t PIN_BME_SCL = 22;
-const uint8_t PIN_BME_PWR =  0;   // Not used (connected to 3.3V)
-const uint8_t BME_ADDRESS = 0x76; // 0x76 if SDO -> GND; 0x77 if SDO -> VCC
+// Let the Wire library use the Feather's default native S3 I/O pins
+const int8_t PIN_BME_SDA = 8;  // A5 (GPIO 8)
+const int8_t PIN_BME_SCL = 9;  // Pin 9 (GPIO 9)
+const int8_t PIN_BME_PWR = -1;  // Disabled (hardwired to 3V)
+const int8_t BME_ADDRESS = 0x77; // Adafruit standard footprint default (or 0x76 if SDO is tied to GND)
 
 // WIFI
 // Create a .env file in the project root with:
 //   WIFI_SSID=your_network_name
 //   WIFI_PASSWORD=your_password
-const char *WIFI_SSID     = WIFI_SSID_VALUE;
-const char *WIFI_PASSWORD = WIFI_PASSWORD_VALUE;
+const char *WIFI_SSID     = "talyn";
+const char *WIFI_PASSWORD = "C@lmSh3ph3rdsItsC3rt@inty";
 const unsigned long WIFI_TIMEOUT = 60000; // ms, WiFi connection timeout (60 seconds)
 
 // ACCESS POINT
@@ -97,32 +102,32 @@ const String OWM_ONECALL_VERSION = "";
 // const String LAT = "40.7128";
 // const String LON = "-74.0060";
 // Lille, France: 50.6292° N, 3.0573° E
-const String LAT = "50.6292";
-const String LON = "3.0573";
+const String LAT = "40.455";
+const String LON = "-104.917";
 // Manaus, Brazil: 3.1190° S, 60.0217° W
 // const String LAT = "-3.1190";
 // const String LON = "-60.0217";
 // City name that will be shown in the top-right corner of the display.
-const String CITY_STRING = "Lille";
-const String COUNTRY_STRING = "France";
+const String CITY_STRING = "Windsor";
+const String COUNTRY_STRING = "Colorado";
 // const String CITY_STRING = "New York - USA";
 // const String CITY_STRING = "Manaus";
 // const String COUNTRY_STRING = "Brasil";
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const char *TIMEZONE = "";  // Empty default - user must select from web UI
+const char *TIMEZONE = "MST7MDT,M3.2.0,M11.1.0";  // Empty default - user must select from web UI
 
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
-// const char *TIME_FORMAT = "%l:%M%P"; // 12-hour ex: 1:23am  11:00pm
-const char *TIME_FORMAT = "%H:%M";   // 24-hour ex: 01:23   23:00
+const char *TIME_FORMAT = "%l:%M%P"; // 12-hour ex: 1:23am  11:00pm
+// const char *TIME_FORMAT = "%H:%M";   // 24-hour ex: 01:23   23:00
 // Time format used when displaying axis labels. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
-// const char *HOUR_FORMAT = "%l%P"; // 12-hour ex: 1am  11pm
-const char *HOUR_FORMAT = "%H";      // 24-hour ex: 01   23
+const char *HOUR_FORMAT = "%l%P"; // 12-hour ex: 1am  11pm
+// const char *HOUR_FORMAT = "%H";      // 24-hour ex: 01   23
 // Date format used when displaying date in top-right corner.
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -131,7 +136,8 @@ const char *DATE_FORMAT = "%a, %B %e"; // ex: Sat, January 1
 // of the screen.
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
-const char *REFRESH_TIME_FORMAT = "%x %H:%M";
+//const char *REFRESH_TIME_FORMAT = "%x %H:%M";
+const char *REFRESH_TIME_FORMAT = "%x %l:%M%P";
 // NTP_SERVER_1 is the primary time server, while NTP_SERVER_2 is a fallback.
 // pool.ntp.org will find the closest available NTP server to you.
 const char *NTP_SERVER_1 = "pool.ntp.org";

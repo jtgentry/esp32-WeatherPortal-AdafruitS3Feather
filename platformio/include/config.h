@@ -103,16 +103,16 @@
 /// @defgroup temp_units Temperature Units
 /// @{
 // #define UNITS_TEMP_KELVIN
-#define UNITS_TEMP_CELSIUS
-// #define UNITS_TEMP_FAHRENHEIT
+// #define UNITS_TEMP_CELSIUS
+#define UNITS_TEMP_FAHRENHEIT
 /// @}
 
 /// @defgroup wind_units Wind Speed Units
 /// @{
 // #define UNITS_SPEED_METERSPERSECOND
 // #define UNITS_SPEED_FEETPERSECOND
-#define UNITS_SPEED_KILOMETERSPERHOUR
-// #define UNITS_SPEED_MILESPERHOUR
+// #define UNITS_SPEED_KILOMETERSPERHOUR
+#define UNITS_SPEED_MILESPERHOUR
 // #define UNITS_SPEED_KNOTS
 // #define UNITS_SPEED_BEAUFORT
 /// @}
@@ -131,8 +131,8 @@
 
 /// @defgroup distance_units Distance Units
 /// @{
-#define UNITS_DIST_KILOMETERS
-// #define UNITS_DIST_MILES
+// #define UNITS_DIST_KILOMETERS
+#define UNITS_DIST_MILES
 /// @}
 
 /// @defgroup hourly_precip_units Hourly Precipitation Display
@@ -381,19 +381,19 @@ typedef enum {
 // EXTERNAL CONFIGURATION (defined in config.cpp)
 // ═══════════════════════════════════════════════════════════════════════════
 
-extern const uint8_t PIN_BAT_ADC;      ///< Battery ADC input pin
-extern const uint8_t PIN_EPD_BUSY;     ///< E-paper busy pin
-extern const uint8_t PIN_EPD_CS;       ///< SPI chip select
-extern const uint8_t PIN_EPD_RST;      ///< Display reset
-extern const uint8_t PIN_EPD_DC;       ///< Data/command select
-extern const uint8_t PIN_EPD_SCK;      ///< SPI clock
-extern const uint8_t PIN_EPD_MISO;     ///< SPI MISO (unused)
-extern const uint8_t PIN_EPD_MOSI;     ///< SPI MOSI
-extern const uint8_t PIN_EPD_PWR;      ///< Display power control
-extern const uint8_t PIN_BME_SDA;      ///< I2C SDA for BME sensor
-extern const uint8_t PIN_BME_SCL;      ///< I2C SCL for BME sensor
-extern const uint8_t PIN_BME_PWR;      ///< Sensor power control
-extern const uint8_t BME_ADDRESS;      ///< I2C address (0x76 or 0x77)
+extern const int8_t PIN_BAT_ADC;      ///< Battery ADC input pin
+extern const int8_t PIN_EPD_BUSY;     ///< E-paper busy pin
+extern const int8_t PIN_EPD_CS;       ///< SPI chip select
+extern const int8_t PIN_EPD_RST;      ///< Display reset
+extern const int8_t PIN_EPD_DC;       ///< Data/command select
+extern const int8_t PIN_EPD_SCK;      ///< SPI clock
+extern const int8_t PIN_EPD_MISO;     ///< SPI MISO (unused)
+extern const int8_t PIN_EPD_MOSI;     ///< SPI MOSI
+extern const int8_t PIN_EPD_PWR;      ///< Display power control
+extern const int8_t PIN_BME_SDA;      ///< I2C SDA for BME sensor
+extern const int8_t PIN_BME_SCL;      ///< I2C SCL for BME sensor
+extern const int8_t PIN_BME_PWR;      ///< Sensor power control
+extern const int8_t BME_ADDRESS;      ///< I2C address (0x76 or 0x77)
 
 extern const char *WIFI_SSID;          ///< WiFi network name
 extern const char *WIFI_PASSWORD;      ///< WiFi password

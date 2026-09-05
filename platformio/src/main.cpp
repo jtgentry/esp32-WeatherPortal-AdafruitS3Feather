@@ -704,8 +704,10 @@ void updateWeather()
   TimeDisplayData timeData = timeCoord.process(owm_onecall, startTick);
 
   // GET INDOOR TEMPERATURE AND HUMIDITY
-  pinMode(PIN_BME_PWR, OUTPUT);
-  digitalWrite(PIN_BME_PWR, HIGH);
+  if (PIN_BME_PWR >= 0 && PIN_BME_PWR != 255) {
+    pinMode(PIN_BME_PWR, OUTPUT);
+    digitalWrite(PIN_BME_PWR, HIGH);
+  }
   delay(100); 
   TwoWire I2C_bme = TwoWire(0);
   I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000);
@@ -714,11 +716,16 @@ void updateWeather()
 #if defined(SENSOR_BME280)
   Adafruit_BME280 bme;
   if(bme.begin(BME_ADDRESS, &I2C_bme)) {
+    Serial.println("[BME] Sensor initialized successfully.");
     inTemp = bme.readTemperature();
     inHumidity = bme.readHumidity();
+  } else {
+    Serial.println("[BME] Error: Could not find a valid BME280 sensor!");
   }
 #endif
-  digitalWrite(PIN_BME_PWR, LOW);
+  if (PIN_BME_PWR >= 0 && PIN_BME_PWR != 255) {
+    digitalWrite(PIN_BME_PWR, LOW);
+  }
 
   // RENDER FULL REFRESH
   initDisplay();
@@ -770,6 +777,9 @@ void updateWeather()
 void setup()
 {
   startTick = millis();
+  pinMode(PIN_EPD_PWR, OUTPUT);
+  digitalWrite(PIN_EPD_PWR, HIGH); // Power on the e-paper display / featherwing
+  delay(20); // Give the display power rail a moment to stabilize
   Serial.begin(115200);
   disableBuiltinLED();
 
