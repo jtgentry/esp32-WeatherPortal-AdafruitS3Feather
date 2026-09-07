@@ -37,6 +37,7 @@
 #include "renderer.h"
 #include "wifi_manager.h"
 #include "time_coordinator.h"
+#include <Adafruit_MAX1704X.h>
 
 #if defined(SENSOR_BME280)
   #include <Adafruit_BME280.h>
@@ -49,6 +50,11 @@
 #endif
 #ifdef USE_HTTPS_WITH_CERT_VERIF
   #include "cert.h"
+#endif
+
+#if BATTERY_MONITORING
+// Instantiate the fuel gauge tracker (uses default I2C address 0x36)
+extern Adafruit_MAX17048 maxlipo; 
 #endif
 
 /// @brief Global weather data structure (static to avoid stack overflow)
@@ -707,15 +713,15 @@ void updateWeather()
   if (PIN_BME_PWR >= 0 && PIN_BME_PWR != 255) {
     pinMode(PIN_BME_PWR, OUTPUT);
     digitalWrite(PIN_BME_PWR, HIGH);
+    delay(100); 
   }
-  delay(100); 
-  TwoWire I2C_bme = TwoWire(0);
-  I2C_bme.begin(PIN_BME_SDA, PIN_BME_SCL, 100000);
+  
   float inTemp = NAN;
   float inHumidity = NAN;
 #if defined(SENSOR_BME280)
   Adafruit_BME280 bme;
-  if(bme.begin(BME_ADDRESS, &I2C_bme)) {
+  // Uses default Wire (GPIO 3 / GPIO 4) automatically
+  if(bme.begin(BME_ADDRESS)) {
     Serial.println("[BME] Sensor initialized successfully.");
     inTemp = bme.readTemperature();
     inHumidity = bme.readHumidity();
@@ -773,14 +779,42 @@ void updateWeather()
   setFirmwareState(STATE_SLEEP_PENDING);
 }
 
+
+void runI2CScanner() {
+  //Wire.begin(SDA, SCL, 100000);
+  Serial.printf("\n[I2C Scanner] Scanning pins SDA (%d) and SCL (%d)...\n", SDA, SCL);
+  
+  byte count = 0;
+  for (uint8_t addr = 1; addr < 127; addr++) {
+    Wire.beginTransmission(addr);
+    byte error = Wire.endTransmission();
+    
+    if (error == 0) {
+      Serial.printf("[I2C Scanner] Found device at address 0x%02X\n", addr);
+      count++;
+    } else if (error == 4) {
+      Serial.printf("[I2C Scanner] Unknown error at address 0x%02X\n", addr);
+    }
+  }
+  
+  if (count == 0) {
+    Serial.println("[I2C Scanner] No I2C devices found! Check wiring.");
+  } else {
+    Serial.printf("[I2C Scanner] Scan complete. Found %d device(s).\n", count);
+  }
+}
+
 /// @brief Arduino framework setup function
 void setup()
 {
+  Serial.begin(115200);
+  //delay(500); // Brief pause to let serial monitor attach
+  delay(2000); // Brief pause to let serial monitor attach
   startTick = millis();
   pinMode(PIN_EPD_PWR, OUTPUT);
   digitalWrite(PIN_EPD_PWR, HIGH); // Power on the e-paper display / featherwing
   delay(20); // Give the display power rail a moment to stabilize
-  Serial.begin(115200);
+  Serial.println("[debug] Disabling build-in LED.");
   disableBuiltinLED();
 
   // ============================================================
@@ -791,6 +825,23 @@ void setup()
   // The .env file is used only as a factory bootstrap seed when
   // ALLOW_ENV_BOOTSTRAP_TO_NVS is enabled and NVS is empty.
 
+  // Enable power to the I2C / STEMMA QT bus
+  Serial.println("[INFO] Enabling I2C power for sensors and peripherals.");
+#if defined(PIN_I2C_POWER)
+  pinMode(PIN_I2C_POWER, OUTPUT);
+  digitalWrite(PIN_I2C_POWER, HIGH);
+#elif defined(TFT_I2C_POWER)
+  pinMode(TFT_I2C_POWER, OUTPUT);
+  digitalWrite(TFT_I2C_POWER, HIGH);
+#endif
+  delay(10);
+  Wire.begin(SDA, SCL, 100000);
+  // Initialize the MAX17048 battery monitor object
+  Serial.println("[INFO] Initializing MAX17048 battery monitor...");
+  if (!maxlipo.begin(&Wire)) {
+    Serial.println("[WARNING] Could not find Adafruit MAX17048 battery monitor!");
+  }
+
   // ============================================================
   // BATTERY CHECK (ORIGINAL BEHAVIOR - Single threshold, no retries)
   // ============================================================
@@ -798,9 +849,11 @@ void setup()
   // Only a manual reset or recharge can wake the device.
   // ============================================================
 #if BATTERY_MONITORING
+  Serial.println("[INFO] Checking battery voltage...");
   prefs.begin("storage", false);
   
   uint32_t batteryVoltage = readBatteryVoltage();
+  Serial.printf("[INFO] Read battery voltage... %d mV\n", batteryVoltage);
   Serial.print(TXT_BATTERY_VOLTAGE);
   Serial.println(": " + String(batteryVoltage) + "mv");
   
@@ -831,6 +884,7 @@ void setup()
     
     // ORIGINAL: Hibernate indefinitely (NO timer wakeup)
     // Device will NOT wake up automatically. Requires manual reset or recharge.
+    Serial.println("[INFO] Entering indefinite deep sleep due to low battery.");
     killWiFi();  // Prevent watchdog timeout during deep sleep entry
     esp_deep_sleep_start();
   }
@@ -845,9 +899,14 @@ void setup()
   
 #else
   // USB MODE: Fake full battery
+  Serial.println("[INFO] Using USB power mode, faking full battery voltage.");
 #endif
 
+  Serial.println("[INFO] WiFi Manager setup starting...");
   wifiManagerSetup();
+
+  //Serial.println("[debug] Running I2C Scanner.");
+  //runI2CScanner();
 }
 
 /// @brief Arduino framework main loop

@@ -43,8 +43,8 @@ const int8_t PIN_EPD_MISO = 37;
 const int8_t PIN_EPD_MOSI = 35;
 // I2C Pins used for BME280
 // Let the Wire library use the Feather's default native S3 I/O pins
-const int8_t PIN_BME_SDA = 8;  // A5 (GPIO 8)
-const int8_t PIN_BME_SCL = 9;  // Pin 9 (GPIO 9)
+const int8_t PIN_BME_SDA = SDA;
+const int8_t PIN_BME_SCL = SCL;
 const int8_t PIN_BME_PWR = -1;  // Disabled (hardwired to 3V)
 const int8_t BME_ADDRESS = 0x77; // Adafruit standard footprint default (or 0x76 if SDO is tied to GND)
 
@@ -52,8 +52,10 @@ const int8_t BME_ADDRESS = 0x77; // Adafruit standard footprint default (or 0x76
 // Create a .env file in the project root with:
 //   WIFI_SSID=your_network_name
 //   WIFI_PASSWORD=your_password
-const char *WIFI_SSID     = "talyn";
-const char *WIFI_PASSWORD = "C@lmSh3ph3rdsItsC3rt@inty";
+//const char *WIFI_SSID     = "talyn";
+//const char *WIFI_PASSWORD = "C@lmSh3ph3rdsItsC3rt@inty";
+const char *WIFI_SSID     = "jPhone16Pro";
+const char *WIFI_PASSWORD = "TclRulez";
 const unsigned long WIFI_TIMEOUT = 60000; // ms, WiFi connection timeout (60 seconds)
 
 // ACCESS POINT

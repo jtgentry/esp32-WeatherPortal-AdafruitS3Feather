@@ -276,7 +276,7 @@
 
 /// @brief Battery monitoring enable flag
 /// @details 0=USB/PSU mode (no monitoring), 1=Battery mode (full protection)
-#define BATTERY_MONITORING 0
+#define BATTERY_MONITORING 1
 
 /// @defgroup retry_policy Retry Policy Configuration
 /// @brief Maximum consecutive failures before entering permanent error state

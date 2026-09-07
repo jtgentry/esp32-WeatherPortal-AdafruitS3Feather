@@ -269,7 +269,7 @@ bool readConfigButton() {
         delay(50);
     }
 
-    Serial.println("[BOOT] No button press detected. Booting normally.");
+    Serial.println("[BOOT] No BOOT button press detected. Booting normally.");
     return false;
 }
 

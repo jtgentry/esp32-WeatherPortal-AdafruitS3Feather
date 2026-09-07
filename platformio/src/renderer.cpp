@@ -2000,7 +2000,9 @@ void drawStatusBar(const String &statusStr, const String &refreshTimeStr,
   int pos = DISP_WIDTH - 2;
   const int sp = 2;
 
+  Serial.println("[debug] Checking battery status");
 #if BATTERY_MONITORING
+  Serial.println("[debug] Monitoring battery voltage: " + String(batVoltage) + " mV");
   // battery - (expecting 3.7v LiPo)
   uint32_t batPercent = calcBatPercent(batVoltage,
                                        MIN_BATTERY_VOLTAGE,
