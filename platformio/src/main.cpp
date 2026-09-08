@@ -52,10 +52,8 @@
   #include "cert.h"
 #endif
 
-#if BATTERY_MONITORING
 // Instantiate the fuel gauge tracker (uses default I2C address 0x36)
 extern Adafruit_MAX17048 maxlipo; 
-#endif
 
 /// @brief Global weather data structure (static to avoid stack overflow)
 /// @details OWM_NUM_HOURLY * hourly struct size + OWM_NUM_DAILY * daily struct size
@@ -781,13 +779,13 @@ void updateWeather()
 
 
 void runI2CScanner() {
-  //Wire.begin(SDA, SCL, 100000);
   Serial.printf("\n[I2C Scanner] Scanning pins SDA (%d) and SCL (%d)...\n", SDA, SCL);
   
   byte count = 0;
   for (uint8_t addr = 1; addr < 127; addr++) {
     Wire.beginTransmission(addr);
     byte error = Wire.endTransmission();
+    Serial.printf("[I2C Scanner] received %d at address 0x%02X\n", error, addr);
     
     if (error == 0) {
       Serial.printf("[I2C Scanner] Found device at address 0x%02X\n", addr);
@@ -808,8 +806,7 @@ void runI2CScanner() {
 void setup()
 {
   Serial.begin(115200);
-  //delay(500); // Brief pause to let serial monitor attach
-  delay(2000); // Brief pause to let serial monitor attach
+  delay(500); // Brief pause to let serial monitor attach
   startTick = millis();
   pinMode(PIN_EPD_PWR, OUTPUT);
   digitalWrite(PIN_EPD_PWR, HIGH); // Power on the e-paper display / featherwing
@@ -836,10 +833,20 @@ void setup()
 #endif
   delay(10);
   Wire.begin(SDA, SCL, 100000);
-  // Initialize the MAX17048 battery monitor object
+  // Initialize the MAX17048 battery monitor object safely
   Serial.println("[INFO] Initializing MAX17048 battery monitor...");
-  if (!maxlipo.begin(&Wire)) {
-    Serial.println("[WARNING] Could not find Adafruit MAX17048 battery monitor!");
+
+  // Quick transmission check to see if the chip responds before calling .begin()
+  Wire.beginTransmission(0x36);
+  if (Wire.endTransmission() == 0) {
+    if (!maxlipo.begin(&Wire)) {
+      Serial.println("[WARNING] MAX17048 found but failed to initialize!");
+    } else {
+      Serial.println("[INFO] MAX17048 initialized successfully.");
+      delay(50); // Allow ADC conversion time
+    }
+  } else {
+    Serial.println("[WARNING] MAX17048 not detected on I2C bus (battery disconnected?). Skipping.");
   }
 
   // ============================================================
@@ -906,7 +913,7 @@ void setup()
   wifiManagerSetup();
 
   //Serial.println("[debug] Running I2C Scanner.");
-  //runI2CScanner();
+  runI2CScanner();
 }
 
 /// @brief Arduino framework main loop

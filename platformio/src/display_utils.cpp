@@ -46,15 +46,11 @@ extern Adafruit_MAX17048 maxlipo;
 
 uint32_t readBatteryVoltage()
 {
-    // Initialize the MAX17048 battery monitor object
-  if (!maxlipo.begin(&Wire)) {
-    Serial.println("[WARNING] Could not find Adafruit MAX17048 battery monitor!");
-  }
   // If your setup routine initializes maxlipo elsewhere, 
   // you can pull the cell voltage directly in millivolts:
   Serial.println("[INFO] Reading battery voltage...");
   float voltage = maxlipo.cellVoltage();
-  Serial.printf("[INFO] Battery voltage: %.2f V\n", voltage);
+  Serial.printf("[INFO] Battery voltage: %.2f\n", voltage);
   
   if (isnan(voltage)) {
     return 0; // Fallback if no battery is attached
