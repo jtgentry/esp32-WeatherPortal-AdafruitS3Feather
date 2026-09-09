@@ -46,7 +46,7 @@ const int8_t PIN_EPD_MOSI = 35;
 const int8_t PIN_BME_SDA = SDA;
 const int8_t PIN_BME_SCL = SCL;
 const int8_t PIN_BME_PWR = -1;  // Disabled (hardwired to 3V)
-const int8_t BME_ADDRESS = 0x77; // Adafruit standard footprint default (or 0x76 if SDO is tied to GND)
+const int8_t BME_ADDRESS = 0x76; // Adafruit standard footprint default (or 0x76 if SDO is tied to GND)
 
 // WIFI
 // Create a .env file in the project root with:

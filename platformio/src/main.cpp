@@ -785,7 +785,7 @@ void runI2CScanner() {
   for (uint8_t addr = 1; addr < 127; addr++) {
     Wire.beginTransmission(addr);
     byte error = Wire.endTransmission();
-    Serial.printf("[I2C Scanner] received %d at address 0x%02X\n", error, addr);
+    //Serial.printf("[I2C Scanner] received %d at address 0x%02X\n", error, addr);
     
     if (error == 0) {
       Serial.printf("[I2C Scanner] Found device at address 0x%02X\n", addr);
@@ -913,7 +913,7 @@ void setup()
   wifiManagerSetup();
 
   //Serial.println("[debug] Running I2C Scanner.");
-  runI2CScanner();
+  //runI2CScanner();
 }
 
 /// @brief Arduino framework main loop
