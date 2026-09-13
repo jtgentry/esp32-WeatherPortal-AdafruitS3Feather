@@ -843,7 +843,11 @@ void setup()
       Serial.println("[WARNING] MAX17048 found but failed to initialize!");
     } else {
       Serial.println("[INFO] MAX17048 initialized successfully.");
-      delay(50); // Allow ADC conversion time
+      //maxlipo.reset(); // Forces the chip to clear and re-initialize its internal model
+      maxlipo.quickStart(); // Forces an immediate re-estimation of the cell voltage and curve
+      delay(100);      // Allow time for reset and fresh ADC capture
+      float voltage = maxlipo.cellVoltage();
+      Serial.printf("[INFO] Initial battery voltage: %.3f V\n", voltage);
     }
   } else {
     Serial.println("[WARNING] MAX17048 not detected on I2C bus (battery disconnected?). Skipping.");
@@ -870,6 +874,7 @@ void setup()
   // LOW BATTERY DETECTED (Single threshold - ORIGINAL BEHAVIOR)
   if (batteryVoltage <= LOW_BATTERY_VOLTAGE)
   {
+    Serial.printf("[INFO] Low battery voltage detected... %d mV <= %d mV\n", batteryVoltage, LOW_BATTERY_VOLTAGE);
     if (!lowBat) {
       // FIRST TIME: Show error screen and persist state
       prefs.putBool("lowBat", true);
