@@ -403,7 +403,8 @@ void startAP() {
 /// @details Sets hostname, loads configuration from NVS, migrates legacy RTC
 ///          config if present, and reads the configuration button.
 void wifiManagerSetup() {
-    WiFi.setHostname("weather-eink");
+    WiFi.persistent(true); // Ensure credentials are saved to flash
+    WiFi.setHostname("weather-eink-node");
 
     if (!configStore.loadFromNVS()) {
         Serial.println("[WiFi] NVS load failed, will attempt bootstrap or AP mode.");
@@ -479,8 +480,14 @@ void wifiManagerLoop() {
 #else
                 if (currentState == STATE_CHECK_CONFIG || currentState == STATE_BOOTSTRAP) {
                     WiFi.mode(WIFI_STA);
-                    Serial.printf("[WIFI] Connecting to SSID: \"%s\", timeout: %us\n",
-                                  configStore.ssid(), (unsigned int)wifiConfig.wifiConnectTimeout);
+                    //WiFi.setSleep(false); // Disables modem sleep to maintain constant radio awareness
+                    delay(100);
+                    WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE); // Required by some cores to cleanly register DHCP options
+                    Serial.printf("[WIFI] ESP32 MAC Address: \"%s\"\n", WiFi.macAddress().c_str());
+                    Serial.printf("[WIFI] Connecting to SSID: \"%s\" (password: \"%s\"), timeout: %us\n",
+                                configStore.ssid(), configStore.password(), (unsigned int)wifiConfig.wifiConnectTimeout);
+                    //Serial.printf("[WIFI] Connecting to SSID: \"%s\", timeout: %us\n",
+                    //            configStore.ssid(), (unsigned int)wifiConfig.wifiConnectTimeout);
                     WiFi.begin(configStore.ssid(), configStore.password());
                     runtime.wifiStartTime = millis();
                 }
