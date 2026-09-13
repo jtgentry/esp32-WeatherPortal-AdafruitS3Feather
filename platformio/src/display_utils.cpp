@@ -50,7 +50,7 @@ uint32_t readBatteryVoltage()
   // you can pull the cell voltage directly in millivolts:
   Serial.println("[INFO] Reading battery voltage...");
   float voltage = maxlipo.cellVoltage();
-  Serial.printf("[INFO] Battery voltage: %.2f\n", voltage);
+  Serial.printf("[INFO] Battery voltage: %.3f V\n", voltage);
   
   if (isnan(voltage)) {
     return 0; // Fallback if no battery is attached
