@@ -52,10 +52,8 @@ const int8_t BME_ADDRESS = 0x76; // Adafruit standard footprint default (or 0x76
 // Create a .env file in the project root with:
 //   WIFI_SSID=your_network_name
 //   WIFI_PASSWORD=your_password
-//const char *WIFI_SSID     = "talyn";
-//const char *WIFI_PASSWORD = "C@lmSh3ph3rdsItsC3rt@inty";
-const char *WIFI_SSID     = "jPhone16Pro";
-const char *WIFI_PASSWORD = "TclRulez";
+const char *WIFI_SSID     = "undefined";
+const char *WIFI_PASSWORD = "undefined";
 const unsigned long WIFI_TIMEOUT = 60000; // ms, WiFi connection timeout (60 seconds)
 
 // ACCESS POINT
