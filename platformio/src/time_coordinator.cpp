@@ -130,10 +130,15 @@ void TimeCoordinator::syncRtcIfNeeded_(int offsetSeconds) {
     
     // Configure NTP server pool with reliable fallbacks
     configTime(offsetSeconds, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
-    delay(100);
     
-    if (time(nullptr) > 1000000000) {
-        rtcSynced_ = true;
+    // Poll for a valid time stamp with a timeout (e.g., 5 seconds)
+    unsigned long startAttempt = millis();
+    while (millis() - startAttempt < 5000) {
+        if (time(nullptr) > 1000000000) {
+            rtcSynced_ = true;
+            return;
+        }
+        delay(100);
     }
 }
 

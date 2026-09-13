@@ -612,6 +612,7 @@ void updateWeather()
   // TIME SYNCHRONIZATION
   // In AUTO mode, force UTC as the base timezone because we apply the API offset manually.
   // In MANUAL mode, use the user-selected timezone from ConfigStore.
+  delay(2000);  //Give time for WiFi to stabilize before NTP sync
   const char* tzToUse;
   if (configStore.timezoneMode() == TIMEZONE_MODE_MANUAL && configStore.timezone()[0] != '\0') {
     tzToUse = configStore.timezone();
