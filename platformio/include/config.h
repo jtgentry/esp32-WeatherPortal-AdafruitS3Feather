@@ -294,7 +294,8 @@
 /// @brief GPIO used for configuration button (BOOT button on GPIO0)
 /// @details Hold for AP_MODE_HOLD_MS after boot to enter AP config mode.
 ///          GPIO0 must be released during reset to avoid bootloader mode.
-#define CONFIG_BUTTON_PIN 0
+//#define CONFIG_BUTTON_PIN 0
+#define CONFIG_BUTTON_PIN 17
 
 /// @brief Time to hold configuration button to enter AP mode (milliseconds)
 #define AP_MODE_HOLD_MS 1500
