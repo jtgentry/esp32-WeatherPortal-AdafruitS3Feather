@@ -248,7 +248,7 @@ bool readConfigButton() {
     pinMode(CONFIG_BUTTON_PIN, INPUT_PULLUP);
     delay(500);  // Wait for boot to stabilize before sampling GPIO0
 
-    Serial.printf("[BUTTON] Hold GPIO0 for %ums within the next %ums to enter AP setup mode.\n",
+    Serial.printf("[BUTTON] Hold B button for %ums within the next %ums to enter AP setup mode.\n",
                   AP_MODE_HOLD_MS, BUTTON_READ_WINDOW_MS);
 
     unsigned long windowStart = millis();
